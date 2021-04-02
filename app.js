@@ -7,21 +7,40 @@ const client = new Client({
 	 strictSSL: false
 });
 
-const getBuyPricePromise = promisify(client.getBuyPrice).bind(client);
+const getSpotPricePromise = promisify(client.getSpotPrice).bind(client);
 
-const currencies = ['BTC-USD', 'ETH-USD'];
+const currency = 'BTC-USD';
+const day1 = '2021-03-01';
+const day2 = '2021-04-01';
 
 async function main() {
 	try {
 		// put your logic inside the try block here:
 
-		const loadPriceRequests = currencies.map(currency => getBuyPricePromise({ currencyPair: currency }));
-		const results = await Promise.all(loadPriceRequests);
-
-		results.forEach((result, i) => {
-			console.log(`Currency: ${currencies[i]}`);
-			console.log(`Total Amount: ${result.data.amount}\n`);
+		const result1 = await getSpotPricePromise({
+			currencyPair: currency,
+			date: day1,
 		});
+
+		const price1 = result1.data.amount;
+
+		const result2 = await getSpotPricePromise({
+			 currencyPair: currency,
+			 date: day2,
+		});
+	    const price2 = result2.data.amount;
+
+
+		console.log(`Currency: ${currency}`);
+
+		console.log(`Price on ${day1}: ${price1}`);
+		console.log(`Price on ${day2}: ${price2}`);
+
+		let priceChange = price1 - price2;
+		let percentageChange = priceChange/price2
+
+		console.log(`priceChange: ${priceChange}`);
+		console.log(`percentageChange: ${(percentageChange.toFixed(2))*100}`);
 
 	} catch (err) {
 		console.log('err: ', err);
